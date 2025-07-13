@@ -1,8 +1,9 @@
-# Screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-# Enemy properties
-ENEMY_MAX_RADIUS = 50
-ENEMY_SPAWN_RATE = 2.0  # Spawn rate in seconds
-ENEMY_TYPES = 3  # Number of enemy types
+# colour palette
+BLACK = (0, 21, 36)
+WHITE = (244, 244, 248)
+ORANGE = (245, 143, 41)
+GREEN = (51, 153, 137)
+BLUE = (41, 120, 160)
