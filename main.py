@@ -2,35 +2,47 @@
 import pygame
 from constants import *
 from player import Player
+from enemy_spawner import EnemySpawner
 
 
 def main():
     # pygame setup
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    font = pygame.font.Font(None,36)
+    font = pygame.font.Font(None,25)
     clock = pygame.time.Clock()
     running = True
 
-    # Create player once outside the loop
     player = Player(SCREEN_WIDTH//2,SCREEN_HEIGHT//2)
+    spawner = EnemySpawner(player)
+    enemies = []
 
     while running:
-        # poll for events
-        # pygame.QUIT event means the user clicked X to close your window
+        dt = clock.tick(60) / 1000
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        fps_text = font.render(f"FPS: {clock.get_fps():.1f}", True, "white")
+        fps_text = font.render(f"FPS: {clock.get_fps():.1f}", True, WHITE)
+        frametime_text = font.render(f"frametime: {clock.get_time()} ms", True, WHITE)
+        # stat_text = font.render(player.stats, True, WHITE)
 
         # Update player position
         player.move()
+        spawner.update(dt,enemies)
+        for enemy in enemies:
+            enemy.move_towards_player(player)
+
         
         # fill the screen with a color to wipe away anything from last frame
         screen.fill(BLACK)
         screen.blit(fps_text, (10, 10))
+        screen.blit(frametime_text, (10, 30))
+        # screen.blit(stat_text, (SCREEN_WIDTH//2, 10))
         # RENDER YOUR GAME HERE
+
         player.draw(screen)
+        for enemy in enemies:
+            enemy.draw(screen)
 
         # flip() the display to put your work on screen
         pygame.display.flip()
