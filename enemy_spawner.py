@@ -15,7 +15,7 @@ class EnemySpawner:
         self.spawn_timer = 0.0
         self.player = player
         self.last_player_level = player.level
-        self.spawn_rate = 2.0 + (self.player.level * 0.2)  # More reasonable spawn rate
+        self.spawn_rate = 2.0 + (self.player.level * 0.2) 
 
     def spawn(self, position, speed):
         return Enemy(position.x, position.y, speed)

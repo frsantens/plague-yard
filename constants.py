@@ -6,8 +6,10 @@ BLACK = (0, 21, 36)
 WHITE = (244, 244, 248)
 ORANGE = (245, 143, 41)
 RED = (250, 50, 20)
+ULTRARED = (255, 20, 10)
 GREEN = (51, 153, 137)
 BLUE = (41, 120, 160)
+
 
 # player
 SPIN_COOLDOWN = 1
