@@ -13,14 +13,9 @@ class Enemy():
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
 
     def move_towards_player(self, player):
-        # Calculate direction vector
         dx = player.x - self.x
         dy = player.y - self.y
-        
-        # Calculate distance
         distance = (dx**2 + dy**2)**0.5
-        
-        # Normalize and apply speed
         if distance > 0:
             self.x += (dx / distance) * self.speed
             self.y += (dy / distance) * self.speed
