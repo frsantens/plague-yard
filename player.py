@@ -3,25 +3,40 @@ from constants import *
 
 class Player():
     def __init__(self,x,y):
+        # basic properties
         self.x = x
         self.y = y
+        self.size = 35 
         self.color = BLUE
+        self.alive = True
+        self.kills = 0
+        
+        # stats
         self.level = 1
+        self.experience = 0
         self.health = 20
-        self.speed = 4
-        self.attack = 5
+        self.speed = 8
+        
+        # attack_spin
+        self.attack = 15
+        self.attack_cooldown = 1
+        self.attack_rate = 1
+        self.attack_timer = 0
+        self.attack_range = 100
+        self.is_attacking = False
+        self.anim_timer = 0
+        self.anim_duration = 0.05
+        
         self.defence = 1
         self.dodge = 0.05
-        self.stats = [
-            f'level: {self.level}',
-            f'health: {self.health}'
-        ]
-
-        # temp to draw square
-        self.size = 35
 
     def draw(self, screen):
+        if self.is_attacking:
+            pygame.draw.circle(screen, WHITE, self.get_center(), self.attack_range)
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
+        
+    def get_center(self):
+        return (self.x + self.size//2, self.y + self.size//2)
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -35,15 +50,43 @@ class Player():
             dy -= 1
         if keys[pygame.K_DOWN]:
             dy += 1
-        
-        # Normalize diagonal movement
+        # normalise movement before multiplying with speed
         if dx != 0 or dy != 0:
             magnitude = (dx**2 + dy**2)**0.5
             dx = (dx / magnitude) * self.speed
             dy = (dy / magnitude) * self.speed
         self.x += dx
         self.y += dy
-        
-        # Keep player within screen bounds
+        # player can't leave screen
         self.x = max(0, min(self.x, SCREEN_WIDTH - self.size))
         self.y = max(0, min(self.y, SCREEN_HEIGHT - self.size))
+        
+    def enemy_in_range(self, enemy):
+        player_center = self.get_center()
+        # Find closest point on rectangle to circle center
+        closest_x = max(enemy.x, min(player_center[0], enemy.x + enemy.size))
+        closest_y = max(enemy.y, min(player_center[1], enemy.y + enemy.size))
+        dx = player_center[0] - closest_x
+        dy = player_center[1] - closest_y
+        distance = (dx**2 + dy**2)**0.5
+        return distance <= self.attack_range
+        
+    def attack_spin(self, dt, enemies):
+        if self.alive:
+            self.attack_timer += dt
+            if self.attack_timer >= self.attack_cooldown:
+                self.is_attacking = True
+                self.anim_timer = 0
+                self.attack_timer = 0
+                for i in range(len(enemies)-1, -1, -1):
+                    if enemies[i].health > 0:
+                        if self.enemy_in_range(enemies[i]):
+                            enemies[i].health -= self.attack
+                    else:
+                        enemies.pop(i)
+                        self.experience += 5
+                        self.kills += 1
+            if self.is_attacking:
+                self.anim_timer += dt
+                if self.anim_timer >= self.anim_duration:
+                    self.is_attacking = False
