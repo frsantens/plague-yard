@@ -1,5 +1,8 @@
 template/
 .*
+.github/
+.github
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -166,8 +169,7 @@ dmypy.json
 .pyre/
 
 # pytype static type analyzer
-.pytype/
-
+.pyt
 # Cython debug symbols
 cython_debug/
 
