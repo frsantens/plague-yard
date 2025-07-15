@@ -8,8 +8,8 @@ class Enemy():
         self.y = y
         self.size = SIZE_STANDARD
         self.center = (self.x + self.size//2, self.y + self.size//2)
-        self.font = pygame.font.Font(None, 20)
         self.enemy_type = enemy_type
+        self.hp_font = pygame.font.Font(None, 20)
         self.color = ORANGE
         self.color_alpha = (*self.color, 8)
         
@@ -20,6 +20,7 @@ class Enemy():
         self.attack = ATTACK_STANDARD
         self.attack_cooldown = COOLDOWN_STANDARD
         self.attack_range = RANGE_STANDARD
+        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
         # to draw a transp circle I need a new transparent surface
         self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
         self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
@@ -40,16 +41,20 @@ class Enemy():
 
         self.attack_aoe_surface.fill((0,0,0,0))
         pygame.draw.circle(self.attack_aoe_surface, self.color_alpha, self.attack_aoe_surface_center, self.attack_range)
-        
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
-        hp_text = self.font.render(f'{self.health}', True, BLACK)
+        if self.enemy_type == "Boss":
+            pygame.draw.circle(screen, self.color, self.get_center(), self.size)
+        else:
+            pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
 
         center = self.get_center()
         x = center[0]
         y = center[1]
         # position the surface so its center aligns with player
         screen.blit(self.attack_aoe_surface, (x - self.attack_range - 5, y - self.attack_range - 5))
-        screen.blit(hp_text,(self.x, self.y) )
+        screen.blit(self.hp_text,(self.x, self.y) )
+        
+    def update_hp_text(self):
+        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
 
     def get_center(self):
         return (self.x + self.size//2, self.y + self.size//2)
@@ -66,7 +71,7 @@ class Enemy():
         self.attack_timer += dt
         if self.in_range(player) and self.attack_timer >= self.attack_cooldown :
             player.health -= self.attack
-            player.update_health_text() 
+            player.update_hp_text() 
             self.is_attacking = True
             self.anim_timer = 0
             self.attack_timer = 0
@@ -87,6 +92,16 @@ class Enemy():
         distance = (dx**2 + dy**2)**0.5
         return distance <= self.attack_range
 
+class StandardEnemy(Enemy):
+    def __init__(self, x, y, speed):
+        super().__init__(x,y,"Standard", speed)
+        self.health_max = HEALTH_STANDARD
+        self.health = self.health_max
+        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        # need to create surface per class
+        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
+        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        
 class SlowStrongEnemy(Enemy):
     def __init__(self, x, y, speed):
         super().__init__(x,y,"SlowStrong",speed)
@@ -98,7 +113,7 @@ class SlowStrongEnemy(Enemy):
         self.attack = ATTACK_SLOW_AND_STRONG
         self.attack_cooldown = COOLDOWN_SLOW_AND_STRONG
         self.attack_range = RANGE_SLOW_AND_STRONG
-        
+        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
         # need to create surface per class
         self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
         self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
@@ -114,16 +129,30 @@ class FastWeakEnemy(Enemy):
         self.attack = ATTACK_FAST_AND_WEAK
         self.attack_range = RANGE_FAST_AND_WEAK
         self.attack_cooldown = COOLDOWN_FAST_AND_WEAK
+        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
         # need to create surface per class
         self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
         self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
         
-class StandardEnemy(Enemy):
+        
+class BossEnemy(Enemy):
     def __init__(self, x, y, speed):
-        super().__init__(x,y,"Standard", speed)
+        super().__init__(x, y, "Boss", speed)
+        self.health_max = HEALTH_BOSS
+        self.speed = speed * SPD_MOD_BOSS
+        self.health = self.health_max
+        self.size =  SIZE_BOSS
+        self.experience = EXP_BOSS
+        self.attack = ATTACK_BOSS
+        self.attack_range = ATTACK_RANGE_BOSS
+        self.attack_cooldown = COOLDOWN_BOSS
+        self.hp_text = self.hp_font.render(f'{self.health}', True, WHITE)
+        self.color = BOSS_ORANGE
         # need to create surface per class
         self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
         self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        
+        
                 
 
         

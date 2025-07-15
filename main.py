@@ -58,7 +58,7 @@ def main():
 
         if not player.alive and not game_over_recorded:
             game_state = 0
-            survival_time = (pygame.time.get_ticks() - start_time) / 1000.0  # Convert to seconds
+            survival_time = (pygame.time.get_ticks() - start_time) / 1000.0
             game_over_recorded = True  # this way we only store survival_time once, otherwise it keeps running at game over
             
         if game_state == 1:
@@ -72,13 +72,17 @@ def main():
             player.draw(screen)
             for enemy in enemies:
                 enemy.draw(screen)
-            if player.is_level_up and player.level_up_text_timer <= player.level_up_text_duration:
-                player.level_up_txt_rect = player.level_up_text.get_rect()
-                player.level_up_txt_rect.center = (player.get_center()[0], player.get_center()[1] - 30)
-                screen.blit(player.level_up_text,(player.level_up_txt_rect))
-                player.level_up_text_timer += dt
                 
+            if player.is_level_up:
+                if player.level_up_text_timer <= player.level_up_text_duration:
+                    player.level_up_txt_rect = player.level_up_text.get_rect()
+                    player.level_up_txt_rect.center = (player.get_center()[0], player.get_center()[1] - 30)
+                    screen.blit(player.level_up_text,(player.level_up_txt_rect))
+                    player.level_up_text_timer += dt
+                else: player.is_level_up = False
             
+                
+            player.draw_stats_text(screen)
             screen.blit(fps_text, (10, 10))
             screen.blit(enemy_counter_text, (10, 30))
             screen.blit(player_lvl_text, (10, 50))
@@ -110,7 +114,7 @@ def main():
             
             
         pygame.display.flip()
-        clock.tick(60)  # limits FPS to 60
+        clock.tick(144)  # limits FPS to 60
 
     pygame.quit()
 if __name__ == "__main__":

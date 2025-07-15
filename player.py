@@ -1,5 +1,4 @@
 import pygame
-import pygame.gfxdraw
 import random
 from constants import *
 
@@ -52,7 +51,7 @@ class Player():
         self.attack_aoe_surface.fill((0,0,0,0)) #clear attack range surface
         pygame.draw.circle(self.attack_aoe_surface, self.color_alpha, self.attack_aoe_surface_center, self.attack_range)
         if self.is_attacking:
-            pygame.draw.circle(screen, GREY, self.get_center(), self.attack_range)
+            pygame.draw.circle(screen, GREEN, self.get_center(), self.attack_range)
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
     
 
@@ -62,7 +61,6 @@ class Player():
         y = center[1]
         screen.blit(self.attack_aoe_surface, (x - self.attack_range - 5, y - self.attack_range - 5))
         screen.blit(self.hp_text,(self.x, self.y) )
-        self.draw_stats_text(screen)
         
     def get_center(self):
         return (self.x + self.size//2, self.y + self.size//2)
@@ -91,14 +89,22 @@ class Player():
         self.y = max(0, min(self.y, SCREEN_HEIGHT - self.size))
         
     def in_range(self, enemy):
-        player_center = self.get_center()
-        # Find closest point on rectangle to circle center
-        closest_x = max(enemy.x, min(player_center[0], enemy.x + enemy.size))
-        closest_y = max(enemy.y, min(player_center[1], enemy.y + enemy.size))
-        dx = player_center[0] - closest_x
-        dy = player_center[1] - closest_y
-        distance = (dx**2 + dy**2)**0.5
-        return distance <= self.attack_range
+        if enemy.enemy_type != "Boss":
+            player_center = self.get_center()
+            # Find closest point on rectangle to circle center
+            closest_x = max(enemy.x, min(player_center[0], enemy.x + enemy.size))
+            closest_y = max(enemy.y, min(player_center[1], enemy.y + enemy.size))
+            dx = player_center[0] - closest_x
+            dy = player_center[1] - closest_y
+            distance = (dx**2 + dy**2)**0.5
+            return distance <= self.attack_range
+        else:
+            player_center = self.get_center()
+            boss_center = enemy.get_center()
+            dx = player_center[0] - boss_center[0]
+            dy = player_center[1] - boss_center[1]
+            distance = (dx**2 + dy**2)**0.5
+            return distance <= (self.attack_range + enemy.size)
         
     def attack_area(self, dt, enemies):
         if self.alive:
@@ -111,6 +117,7 @@ class Player():
                     if enemies[i].health > 0:
                         if self.in_range(enemies[i]):
                             enemies[i].health -= self.attack
+                            enemies[i].update_hp_text()
                     if enemies[i].health <= 0:
                         self.experience += enemies[i].experience
                         self.kills += 1
@@ -131,9 +138,12 @@ class Player():
             self.is_level_up = True
             self.level += 1
             self.experience = 0
-            self.experience_to_next_lvl = int(self.experience_to_next_lvl * EXP_REQ_SCALE)
+            self.experience_to_next_lvl = int(self.experience_to_next_lvl * EXP_REQ_MULT)
             print(f"Level up! You are now level {self.level}.")
-            self.upgrade_stat(random.choice(self.stats_to_level))
+            # choices() returns a list with 1 string, so acces index 0
+            self.stat_string = random.choices(self.stats_to_level, weights=(0.2,0.2,0.3,0.3))[0]
+            self.upgrade_stat(self.stat_string)
+            self.update_hp_text()
             self.level_up_text_timer = 0
             self.level_up_text = self.stats_font.render(f"Level up! level {self.level}, upgraded {self.stat_string}", True, WHITE)
 
@@ -155,7 +165,7 @@ class Player():
         print(f"Upgraded {stat}!")
         self.stats_to_level = ["attack", "speed", "health", "attack cooldown"]
     
-    def update_health_text(self):
+    def update_hp_text(self):
         self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
         
     def draw_stats_text(self, screen):

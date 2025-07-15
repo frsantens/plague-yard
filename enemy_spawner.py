@@ -16,7 +16,8 @@ class EnemySpawner:
         self.player = player
         self.last_player_level = player.level
         self.spawn_rate = 2.0 + (self.player.level * 0.2) 
-        self.enemy_types = ["SlowStrong", "FastWeak", "Standard"]
+        self.enemy_types = ["SlowStrong", "FastWeak", "Standard", "Boss"] 
+        # to add new enemy type: add to list, change weights in update() and add to spawn()
 
     def spawn(self, position, enemy_type, speed):
         if enemy_type == "SlowStrong":
@@ -25,6 +26,10 @@ class EnemySpawner:
             return StandardEnemy(position.x, position.y, speed)
         if enemy_type == "FastWeak":
             return FastWeakEnemy(position.x, position.y, speed)
+        if enemy_type == "Boss":
+            return BossEnemy(position.x, position.y, speed)
+            
+        
 
     def update(self, dt, enemies):
         if self.player.level != self.last_player_level:
@@ -38,5 +43,5 @@ class EnemySpawner:
             edge = random.choice(self.edges)
             speed = random.uniform(1, 4)
             position = edge[1](random.uniform(0, 1))
-            enemy_type = random.choice(self.enemy_types)
+            enemy_type = random.choices(self.enemy_types, weights=[10,20,40,1])[0]
             enemies.append(self.spawn(position, enemy_type, speed))
