@@ -4,6 +4,7 @@ SCREEN_HEIGHT = 800
 # colour palette
 BLACK = (0, 21, 36)
 WHITE = (244, 244, 248)
+GREY = (61, 61, 64)
 ORANGE = (245, 143, 41)
 RED = (250, 50, 20)
 ULTRARED = (255, 20, 10)

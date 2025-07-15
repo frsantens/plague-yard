@@ -52,7 +52,7 @@ class Player():
         self.attack_aoe_surface.fill((0,0,0,0)) #clear attack range surface
         pygame.draw.circle(self.attack_aoe_surface, self.color_alpha, self.attack_aoe_surface_center, self.attack_range)
         if self.is_attacking:
-            pygame.draw.circle(screen, WHITE, self.get_center(), self.attack_range)
+            pygame.draw.circle(screen, GREY, self.get_center(), self.attack_range)
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
     
 

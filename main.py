@@ -8,6 +8,7 @@ from enemy_spawner import EnemySpawner
 def main():
     # pygame setup
     pygame.init()
+    pygame.display.set_caption('Plague yard v1.01')
     game_state = 1 # 0 = game over, 1 = playing, 2 = pause
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     font = pygame.font.Font(None, 25)
