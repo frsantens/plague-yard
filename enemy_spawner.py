@@ -1,6 +1,6 @@
 import pygame
 import random
-from enemy import Enemy
+from enemy import *
 from constants import *
 
 class EnemySpawner:
@@ -16,13 +16,19 @@ class EnemySpawner:
         self.player = player
         self.last_player_level = player.level
         self.spawn_rate = 2.0 + (self.player.level * 0.2) 
+        self.enemy_types = ["SlowStrong", "FastWeak", "Standard"]
 
-    def spawn(self, position, speed):
-        return Enemy(position.x, position.y, speed)
+    def spawn(self, position, enemy_type, speed):
+        if enemy_type == "SlowStrong":
+            return SlowStrongEnemy(position.x, position.y, speed)
+        if enemy_type == "Standard":
+            return StandardEnemy(position.x, position.y, speed)
+        if enemy_type == "FastWeak":
+            return FastWeakEnemy(position.x, position.y, speed)
 
     def update(self, dt, enemies):
         if self.player.level != self.last_player_level:
-            self.spawn_rate = 2.0 + (self.player.level * 0.2)
+            self.spawn_rate = 2.0 + (self.player.level * 0.4)
             self.last_player_level = self.player.level
 
         self.spawn_timer += dt
@@ -30,6 +36,7 @@ class EnemySpawner:
             self.spawn_timer = 0.0
 
             edge = random.choice(self.edges)
-            speed = random.randint(1, 3)
+            speed = random.uniform(1, 4)
             position = edge[1](random.uniform(0, 1))
-            enemies.append(self.spawn(position, speed))
+            enemy_type = random.choice(self.enemy_types)
+            enemies.append(self.spawn(position, enemy_type, speed))
