@@ -11,6 +11,7 @@ You will protect your yard at all cost!
 * roguelike gameplay
 * multiple enemy types
 * difficulty scales with player level
+* player stats increase with level
 * time passes faster than you think
 
 ### Controls:
@@ -18,3 +19,6 @@ You will protect your yard at all cost!
 * Spacebar to restart when game over
 
 
+Check the constants.py file if you'd like to change some settings
+
+made with python and pygame v2.6.1 lib

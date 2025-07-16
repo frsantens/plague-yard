@@ -1,10 +1,9 @@
 [project]
 name = "plague-yard"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.02"
+description = "top down roguelike survivor game"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pygame==2.6.1",
-    "pyinstaller>=6.14.2",
+    "pygame==2.6.1"
 ]

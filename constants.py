@@ -3,6 +3,16 @@ import pygame as pg
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 
+# colour palette
+BLACK = (0, 21, 36)
+WHITE = (244, 244, 248)
+ORANGE = (245, 143, 41)
+BOSS_ORANGE = (245, 102, 41)
+RED = (240, 67, 41)
+ULTRARED = (214, 28, 41)
+GREEN = (51, 153, 137)
+BLUE = (41, 120, 160)
+
 # CONTROLS
 K_UP = [pg.K_UP, pg.K_w, pg.K_z]
 K_DOWN = [pg.K_DOWN, pg.K_s]
@@ -57,13 +67,3 @@ ATTACK_RANGE_BOSS = SIZE_BOSS + 5
 ATTACK_BOSS = 200
 COOLDOWN_BOSS = 2
 EXP_BOSS = 5000
-
-# colour palette
-BLACK = (0, 21, 36)
-WHITE = (244, 244, 248)
-ORANGE = (245, 143, 41)
-BOSS_ORANGE = (245, 102, 41)
-RED = (240, 67, 41)
-ULTRARED = (214, 28, 41)
-GREEN = (51, 153, 137)
-BLUE = (41, 120, 160)
