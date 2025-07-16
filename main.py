@@ -95,22 +95,26 @@ def main():
         else: 
             minutes = int(survival_time // 60)
             seconds = int(survival_time % 60)
+            damage_reduction = (1 - (1 / player.defense)) * 100
+            dodge_chance = player.dodge / (2 * player.dodge + 100) * 100
             stats_lines = [
                 f"Time Survived: {minutes}:{seconds:02d}",
                 f"Enemies Killed: {player.kills}",
                 f"Level Reached: {player.level}",
                 f"Final Attack: {player.atk}",
+                f"Final Cooldown: {player.atk_cd:.2f}s",
                 f"Final Speed: {player.speed}",
                 f"Final Health: {player.max_hp}",
-                f"Final Cooldown: {player.atk_cd:.2f}s"
+                f'Final Defense: {damage_reduction:.1f}%',
+                f'Final Dodge: {dodge_chance:.1f}%'
             ]
             
             scrn.blit(game_over_text, game_over_text_rect)
             scrn.blit(restart_text, restart_rect)
             
-            stats_start_y = SCREEN_HEIGHT // 2 - 250
-            i = 0
             offset = 30
+            stats_start_y = SCREEN_HEIGHT // 2 - (len(stats_lines)+1.5)*(offset) 
+            i = 0
             for stat_line in stats_lines: 
                 stat_text = font_m.render(stat_line, True, WHITE)
                 stat_rect = stat_text.get_rect()

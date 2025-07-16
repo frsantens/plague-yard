@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 from constants import *
 
 
@@ -79,14 +80,20 @@ class Enemy():
 
     def atk_player(self, dt, player):
         self.atk_timer += dt
-        if self.in_range(player) and self.atk_timer >= self.atk_cd :
-            player.hp -= self.atk
+        if self.in_range(player) and self.atk_timer >= self.atk_cd:
+            dodge = random.choices(
+                [True, False], 
+                weights=[player.dodge, 100+player.dodge]
+                )[0]
+            if not dodge:
+                player.hp -= self.atk // player.defense
+                if player.hp <= 0:
+                    player.alive = False
+            else: print(f'dodged {self.atk} damage!')
             player.update_hp_text() 
             self.is_atking = True
             self.anim_timer = 0
             self.atk_timer = 0
-            if player.hp <= 0:
-                player.alive = False
         if self.is_atking:
             self.anim_timer += dt
             if self.anim_timer >= self.anim_duration:

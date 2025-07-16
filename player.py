@@ -15,7 +15,7 @@ class Player():
         self.is_level_up = False
         self.size = SIZE 
         
-        # stats
+        # initial stats
         self.kills = 0
         self.level = 1
         self.experience = 0
@@ -25,8 +25,14 @@ class Player():
         self.speed = SPEED
         self.atk = ATTACK
         self.atk_cd = ATTACK_COOLDOWN
+        # damage reduction = (1 - (1/player.defense) ) * 100
+        self.defense = 1  
+        # dodge chance = player.dodge / (2 * player.dodge + 100) 
+        self.dodge = 5 
         
-        self.stat_string = ""
+        self.stats_to_level = ["atk", "speed", "hp", "atk cd", "def"]  
+        self.stat_string = "" #used later to temp store stat level up
+        
         self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         self.level_up_text = self.stats_font.render(
             f"Level up! level {self.level}, upgraded {self.stat_string}", 
@@ -35,25 +41,19 @@ class Player():
         self.level_up_text_duration = 2
         self.level_up_text_timer = 0
         
-        # self.atk_rate = 1
         self.atk_timer = 0
         self.atk_range = ATTACK_RANGE
         self.is_atking = False
         self.anim_timer = 0
         self.anim_duration = 0.05
-        # Create transparent surface for the circle
+        # Create transparent surface for the aoe circle
         self.atk_aoe_surface = pg.Surface(
             (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
             )
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
-        self.stats_to_level = ["atk", "speed", "hp", "atk cd"]  
-        self.stat_string = ""
-        # self.defense = 1
-        # self.dodge = 0.05
-
     def draw(self, scrn):
-        self.atk_aoe_surface.fill((0,0,0,0)) #clear atk range surface
+        self.atk_aoe_surface.fill((*BLACK ,0)) #clear aoe circle surface
         pg.draw.circle(
             self.atk_aoe_surface, self.color_alpha, 
             self.atk_aoe_surface_center, self.atk_range
@@ -62,7 +62,6 @@ class Player():
             pg.draw.circle(scrn, GREEN, self.get_center(), self.atk_range)
         pg.draw.rect(scrn, self.color, (self.x, self.y, self.size, self.size))
     
-
         # to position the surface so its center aligns with player
         center = self.get_center()
         x = center[0]
@@ -71,7 +70,7 @@ class Player():
             self.atk_aoe_surface, 
             (x - self.atk_range - 5, y - self.atk_range - 5)
             )
-        scrn.blit(self.hp_text,(self.x, self.y) )
+        scrn.blit(int(self.hp_text), (self.x, self.y))
         
     def get_center(self):
         return (self.x + self.size//2, self.y + self.size//2)
@@ -80,13 +79,13 @@ class Player():
         keys = pg.key.get_pressed()
         dx = 0
         dy = 0
-        if keys[pg.K_LEFT]:
+        if any(keys[k] for k in K_LEFT):
             dx -= 1
-        if keys[pg.K_RIGHT]:
+        if any(keys[k] for k in K_RIGHT):
             dx += 1
-        if keys[pg.K_UP]:
+        if any(keys[k] for k in K_UP):
             dy -= 1
-        if keys[pg.K_DOWN]:
+        if any(keys[k] for k in K_DOWN):
             dy += 1
         # normalise movement before multiplying with speed
         if dx != 0 or dy != 0:
@@ -95,7 +94,7 @@ class Player():
             dy = (dy / magnitude) * self.speed
         self.x += dx
         self.y += dy
-        # player can't leave scrn
+        # player can't leave screen
         self.x = max(0, min(self.x, SCREEN_WIDTH - self.size))
         self.y = max(0, min(self.y, SCREEN_HEIGHT - self.size))
         
@@ -152,14 +151,14 @@ class Player():
         if self.experience >= self.experience_to_next_lvl:
             self.is_level_up = True
             self.level += 1
-            self.experience = 0
+            self.experience -= self.experience_to_next_lvl
             self.experience_to_next_lvl = int(
                 self.experience_to_next_lvl * EXP_REQ_MULT
                 )
             print(f"Level up! You are now level {self.level}.")
-            # choices() returns a list with 1 string, so acces index 0
+            # choices() returns a list with 1 string
             self.stat_string = random.choices(
-                self.stats_to_level, weights=(0.2,0.2,0.3,0.3)
+                self.stats_to_level, weights=[3, 2, 4, 2, 8]
                 )[0]
             self.upgrade_stat(self.stat_string)
             self.update_hp_text()
@@ -168,7 +167,6 @@ class Player():
                 f"Level up! level {self.level}, upgraded {self.stat_string}", 
                 True, WHITE
                 )
-
 
     def upgrade_stat(self, stat):
         if stat == "atk":
@@ -183,20 +181,23 @@ class Player():
         elif stat == "atk cd":
             self.atk_cd *= 0.75
             self.stat_string = "atk cd"
+        elif stat == "def":
+            self.defense += 0.2
+            self.stat_string = "def"
         self.hp = self.max_hp
         print(f"Upgraded {stat}!")
-        self.stats_to_level = ["atk", "speed", "hp", "atk cd"]
     
     def update_hp_text(self):
         self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         
+    # OSD when playing
     def draw_stats_text(self, scrn):
         stats_text = []
-        stats_text.append(f"level             : {self.level}")
-        stats_text.append(f"attack           : {self.atk}")
-        stats_text.append(f"speed           : {self.speed}")
-        stats_text.append(f"max health  : {self.max_hp}")
-        stats_text.append(f"cooldown     : {self.atk_cd:.2f}")
+        stats_text.append(f"level        : {self.level}")
+        stats_text.append(f"attack      : {self.atk}")
+        stats_text.append(f"speed        : {self.speed}")
+        stats_text.append(f"hp  : {int(self.hp)}/{self.max_hp}")
+        stats_text.append(f"cooldown  : {self.atk_cd:.2f}")
         offset = 0
         for text in stats_text:
             scrn.blit(
