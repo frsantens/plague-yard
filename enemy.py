@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 from constants import *
 
 
@@ -9,52 +9,62 @@ class Enemy():
         self.size = SIZE_STANDARD
         self.center = (self.x + self.size//2, self.y + self.size//2)
         self.enemy_type = enemy_type
-        self.hp_font = pygame.font.Font(None, 20)
+        self.hp_font = pg.font.Font(None, 20)
         self.color = ORANGE
         self.color_alpha = (*self.color, 8)
         
         self.speed = speed
-        self.health_max = HEALTH_STANDARD
-        self.health = self.health_max
+        self.hp_max = HEALTH_STANDARD
+        self.hp = self.hp_max
         self.experience = EXP_STANDARD
-        self.attack = ATTACK_STANDARD
-        self.attack_cooldown = COOLDOWN_STANDARD
-        self.attack_range = RANGE_STANDARD
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        self.atk = ATTACK_STANDARD
+        self.atk_cd = COOLDOWN_STANDARD
+        self.atk_range = RANGE_STANDARD
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         # to draw a transp circle I need a new transparent surface
-        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
-        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        self.atk_aoe_surface = pg.Surface(
+            (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
+            )
+        self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
-        self.is_attacking = False
-        self.attack_timer = 0
+        self.is_atking = False
+        self.atk_timer = 0
         self.anim_timer = 0
         self.anim_duration = 0.05
 
-    def draw(self, screen):
-        if self.is_attacking:
-            pygame.draw.circle(screen, ULTRARED, self.get_center(), self.attack_range)
-        if self.health <= self.health_max // 2:
+    def draw(self, scrn):
+        if self.is_atking:
+            pg.draw.circle(scrn, ULTRARED, self.get_center(), self.atk_range)
+        if self.hp <= self.hp_max // 2:
             self.color = RED
             self.color_alpha = (*self.color, 20)
         else:
             self.color_alpha = (*self.color,8)
 
-        self.attack_aoe_surface.fill((0,0,0,0))
-        pygame.draw.circle(self.attack_aoe_surface, self.color_alpha, self.attack_aoe_surface_center, self.attack_range)
+        self.atk_aoe_surface.fill((0,0,0,0))
+        pg.draw.circle(
+            self.atk_aoe_surface, self.color_alpha, 
+            self.atk_aoe_surface_center, self.atk_range
+            )
         if self.enemy_type == "Boss":
-            pygame.draw.circle(screen, self.color, self.get_center(), self.size)
+            pg.draw.circle(scrn, self.color, self.get_center(), self.size)
         else:
-            pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
+            pg.draw.rect(
+                scrn, self.color, (self.x, self.y, self.size, self.size)
+                )
 
         center = self.get_center()
         x = center[0]
         y = center[1]
         # position the surface so its center aligns with player
-        screen.blit(self.attack_aoe_surface, (x - self.attack_range - 5, y - self.attack_range - 5))
-        screen.blit(self.hp_text,(self.x, self.y) )
+        scrn.blit(
+            self.atk_aoe_surface, 
+            (x - self.atk_range - 5, y - self.atk_range - 5)
+            )
+        scrn.blit(self.hp_text,(self.x, self.y) )
         
     def update_hp_text(self):
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
 
     def get_center(self):
         return (self.x + self.size//2, self.y + self.size//2)
@@ -67,20 +77,20 @@ class Enemy():
             self.x += (dx / distance) * self.speed
             self.y += (dy / distance) * self.speed
 
-    def attack_player(self, dt, player):
-        self.attack_timer += dt
-        if self.in_range(player) and self.attack_timer >= self.attack_cooldown :
-            player.health -= self.attack
+    def atk_player(self, dt, player):
+        self.atk_timer += dt
+        if self.in_range(player) and self.atk_timer >= self.atk_cd :
+            player.hp -= self.atk
             player.update_hp_text() 
-            self.is_attacking = True
+            self.is_atking = True
             self.anim_timer = 0
-            self.attack_timer = 0
-            if player.health <= 0:
+            self.atk_timer = 0
+            if player.hp <= 0:
                 player.alive = False
-        if self.is_attacking:
+        if self.is_atking:
             self.anim_timer += dt
             if self.anim_timer >= self.anim_duration:
-                self.is_attacking = False
+                self.is_atking = False
 
     def in_range(self, player):
         enemy_center = self.get_center()
@@ -90,67 +100,75 @@ class Enemy():
         dx = enemy_center[0] - closest_x
         dy = enemy_center[1] - closest_y
         distance = (dx**2 + dy**2)**0.5
-        return distance <= self.attack_range
+        return distance <= self.atk_range
 
 class StandardEnemy(Enemy):
     def __init__(self, x, y, speed):
         super().__init__(x,y,"Standard", speed)
-        self.health_max = HEALTH_STANDARD
-        self.health = self.health_max
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        self.hp_max = HEALTH_STANDARD
+        self.hp = self.hp_max
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         # need to create surface per class
-        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
-        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        self.atk_aoe_surface = pg.Surface(
+            (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
+            )
+        self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
 class SlowStrongEnemy(Enemy):
     def __init__(self, x, y, speed):
         super().__init__(x,y,"SlowStrong",speed)
         self.size = SIZE_SLOW_AND_STRONG
         self.speed = speed * SPD_MOD_SLOW_AND_STRONG
-        self.health_max = HEALTH_SLOW_AND_STRONG
-        self.health = self.health_max
+        self.hp_max = HEALTH_SLOW_AND_STRONG
+        self.hp = self.hp_max
         self.experience = EXP_SLOW_AND_STRONG
-        self.attack = ATTACK_SLOW_AND_STRONG
-        self.attack_cooldown = COOLDOWN_SLOW_AND_STRONG
-        self.attack_range = RANGE_SLOW_AND_STRONG
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        self.atk = ATTACK_SLOW_AND_STRONG
+        self.atk_cd = COOLDOWN_SLOW_AND_STRONG
+        self.atk_range = RANGE_SLOW_AND_STRONG
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         # need to create surface per class
-        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
-        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        self.atk_aoe_surface = pg.Surface(
+            (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
+            )
+        self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
 class FastWeakEnemy(Enemy):
     def __init__(self, x, y, speed):
         super().__init__(x, y, "FastWeak", speed)
         self.size = SIZE_FAST_AND_WEAK
         self.speed = speed * SPD_MOD_FAST_AND_WEAK
-        self.health_max = HEALTH_FAST_AND_WEAK
-        self.health = self.health_max
+        self.hp_max = HEALTH_FAST_AND_WEAK
+        self.hp = self.hp_max
         self.experience = EXP_FAST_AND_WEAK
-        self.attack = ATTACK_FAST_AND_WEAK
-        self.attack_range = RANGE_FAST_AND_WEAK
-        self.attack_cooldown = COOLDOWN_FAST_AND_WEAK
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        self.atk = ATTACK_FAST_AND_WEAK
+        self.atk_range = RANGE_FAST_AND_WEAK
+        self.atk_cd = COOLDOWN_FAST_AND_WEAK
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         # need to create surface per class
-        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
-        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        self.atk_aoe_surface = pg.Surface(
+            (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
+            )
+        self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
         
 class BossEnemy(Enemy):
     def __init__(self, x, y, speed):
         super().__init__(x, y, "Boss", speed)
-        self.health_max = HEALTH_BOSS
+        self.hp_max = HEALTH_BOSS
         self.speed = speed * SPD_MOD_BOSS
-        self.health = self.health_max
+        self.hp = self.hp_max
         self.size =  SIZE_BOSS
         self.experience = EXP_BOSS
-        self.attack = ATTACK_BOSS
-        self.attack_range = ATTACK_RANGE_BOSS
-        self.attack_cooldown = COOLDOWN_BOSS
-        self.hp_text = self.hp_font.render(f'{self.health}', True, WHITE)
+        self.atk = ATTACK_BOSS
+        self.atk_range = ATTACK_RANGE_BOSS
+        self.atk_cd = COOLDOWN_BOSS
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, WHITE)
         self.color = BOSS_ORANGE
         # need to create surface per class
-        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
-        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        self.atk_aoe_surface = pg.Surface(
+            (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
+            )
+        self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
         
                 

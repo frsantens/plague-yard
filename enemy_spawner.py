@@ -1,23 +1,28 @@
-import pygame
+import pygame as pg
 import random
-from enemy import *
+from enemy import SlowStrongEnemy, FastWeakEnemy, StandardEnemy, BossEnemy
 from constants import *
 
 class EnemySpawner:
-    edges = [
-        [pygame.Vector2(1, 0), lambda y: pygame.Vector2(-30, y * SCREEN_HEIGHT)],
-        [pygame.Vector2(-1, 0), lambda y: pygame.Vector2(SCREEN_WIDTH + 30, y * SCREEN_HEIGHT)],
-        [pygame.Vector2(0, 1), lambda x: pygame.Vector2(x * SCREEN_WIDTH, -30)],
-        [pygame.Vector2(0, -1), lambda x: pygame.Vector2(x * SCREEN_WIDTH, SCREEN_HEIGHT + 30)],
-    ]
-
     def __init__(self, player):
         self.spawn_timer = 0.0
         self.player = player
         self.last_player_level = player.level
         self.spawn_rate = 2.0 + (self.player.level * 0.2) 
         self.enemy_types = ["SlowStrong", "FastWeak", "Standard", "Boss"] 
-        # to add new enemy type: add to list, change weights in update() and add to spawn()
+
+    def get_random_spawn_position(self):
+        edge = random.randint(0, 3)  # 0=left, 1=right, 2=top, 3=bottom
+        sw = SCREEN_WIDTH
+        sh = SCREEN_HEIGHT
+        if edge == 0:  # left
+            return pg.Vector2(-30, random.uniform(0, sh))
+        elif edge == 1:  # right
+            return pg.Vector2(sw + 30, random.uniform(0, sh))
+        elif edge == 2:  # top
+            return pg.Vector2(random.uniform(0, sw), -30)
+        else:  # bottom
+            return pg.Vector2(random.uniform(0, sw), sh + 30)
 
     def spawn(self, position, enemy_type, speed):
         if enemy_type == "SlowStrong":
@@ -28,20 +33,17 @@ class EnemySpawner:
             return FastWeakEnemy(position.x, position.y, speed)
         if enemy_type == "Boss":
             return BossEnemy(position.x, position.y, speed)
-            
-        
 
     def update(self, dt, enemies):
         if self.player.level != self.last_player_level:
             self.spawn_rate = 2.0 + (self.player.level * 0.4)
             self.last_player_level = self.player.level
-
         self.spawn_timer += dt
         if self.spawn_timer >= 1.0 / self.spawn_rate:
-            self.spawn_timer = 0.0
-
-            edge = random.choice(self.edges)
+            position = self.get_random_spawn_position()
             speed = random.uniform(1, 4)
-            position = edge[1](random.uniform(0, 1))
-            enemy_type = random.choices(self.enemy_types, weights=[10,20,40,1])[0]
+            enemy_type = random.choices(
+                self.enemy_types, weights=[10,20,40,1]
+                )[0]
             enemies.append(self.spawn(position, enemy_type, speed))
+            self.spawn_timer = 0.0

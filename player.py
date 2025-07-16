@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 import random
 from constants import *
 
@@ -9,8 +9,8 @@ class Player():
         self.y = y
         self.color = PLAYER_COLOR
         self.color_alpha = (*self.color, 10)
-        self.hp_font = pygame.font.Font(None, 20)
-        self.stats_font = pygame.font.Font(None, 25)
+        self.hp_font = pg.font.Font(None, 20)
+        self.stats_font = pg.font.Font(None, 25)
         self.alive = True
         self.is_level_up = False
         self.size = SIZE 
@@ -20,62 +20,73 @@ class Player():
         self.level = 1
         self.experience = 0
         self.experience_to_next_lvl = EXP_REQ
-        self.max_health = HEALTH
-        self.health = self.max_health
+        self.max_hp = HEALTH
+        self.hp = self.max_hp
         self.speed = SPEED
-        self.attack = ATTACK
-        self.attack_cooldown = ATTACK_COOLDOWN
+        self.atk = ATTACK
+        self.atk_cd = ATTACK_COOLDOWN
         
         self.stat_string = ""
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
-        self.level_up_text = self.stats_font.render(f"Level up! level {self.level}, upgraded {self.stat_string}", True, WHITE)
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
+        self.level_up_text = self.stats_font.render(
+            f"Level up! level {self.level}, upgraded {self.stat_string}", 
+            True, WHITE
+            )
         self.level_up_text_duration = 2
         self.level_up_text_timer = 0
         
-        # self.attack_rate = 1
-        self.attack_timer = 0
-        self.attack_range = ATTACK_RANGE
-        self.is_attacking = False
+        # self.atk_rate = 1
+        self.atk_timer = 0
+        self.atk_range = ATTACK_RANGE
+        self.is_atking = False
         self.anim_timer = 0
         self.anim_duration = 0.05
         # Create transparent surface for the circle
-        self.attack_aoe_surface = pygame.Surface((self.attack_range * 2 + 10, self.attack_range * 2 + 10), pygame.SRCALPHA)
-        self.attack_aoe_surface_center = (self.attack_range + 5, self.attack_range + 5)
+        self.atk_aoe_surface = pg.Surface(
+            (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
+            )
+        self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
-        self.stats_to_level = ["attack", "speed", "health", "attack cooldown"]  
+        self.stats_to_level = ["atk", "speed", "hp", "atk cd"]  
         self.stat_string = ""
         # self.defense = 1
         # self.dodge = 0.05
 
-    def draw(self, screen):
-        self.attack_aoe_surface.fill((0,0,0,0)) #clear attack range surface
-        pygame.draw.circle(self.attack_aoe_surface, self.color_alpha, self.attack_aoe_surface_center, self.attack_range)
-        if self.is_attacking:
-            pygame.draw.circle(screen, GREEN, self.get_center(), self.attack_range)
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.size, self.size))
+    def draw(self, scrn):
+        self.atk_aoe_surface.fill((0,0,0,0)) #clear atk range surface
+        pg.draw.circle(
+            self.atk_aoe_surface, self.color_alpha, 
+            self.atk_aoe_surface_center, self.atk_range
+            )
+        if self.is_atking:
+            pg.draw.circle(scrn, GREEN, self.get_center(), self.atk_range)
+        pg.draw.rect(scrn, self.color, (self.x, self.y, self.size, self.size))
     
 
         # to position the surface so its center aligns with player
         center = self.get_center()
         x = center[0]
         y = center[1]
-        screen.blit(self.attack_aoe_surface, (x - self.attack_range - 5, y - self.attack_range - 5))
-        screen.blit(self.hp_text,(self.x, self.y) )
+        scrn.blit(
+            self.atk_aoe_surface, 
+            (x - self.atk_range - 5, y - self.atk_range - 5)
+            )
+        scrn.blit(self.hp_text,(self.x, self.y) )
         
     def get_center(self):
         return (self.x + self.size//2, self.y + self.size//2)
 
     def move(self):
-        keys = pygame.key.get_pressed()
+        keys = pg.key.get_pressed()
         dx = 0
         dy = 0
-        if keys[pygame.K_LEFT]:
+        if keys[pg.K_LEFT]:
             dx -= 1
-        if keys[pygame.K_RIGHT]:
+        if keys[pg.K_RIGHT]:
             dx += 1
-        if keys[pygame.K_UP]:
+        if keys[pg.K_UP]:
             dy -= 1
-        if keys[pygame.K_DOWN]:
+        if keys[pg.K_DOWN]:
             dy += 1
         # normalise movement before multiplying with speed
         if dx != 0 or dy != 0:
@@ -84,7 +95,7 @@ class Player():
             dy = (dy / magnitude) * self.speed
         self.x += dx
         self.y += dy
-        # player can't leave screen
+        # player can't leave scrn
         self.x = max(0, min(self.x, SCREEN_WIDTH - self.size))
         self.y = max(0, min(self.y, SCREEN_HEIGHT - self.size))
         
@@ -92,41 +103,45 @@ class Player():
         if enemy.enemy_type != "Boss":
             player_center = self.get_center()
             # Find closest point on rectangle to circle center
-            closest_x = max(enemy.x, min(player_center[0], enemy.x + enemy.size))
-            closest_y = max(enemy.y, min(player_center[1], enemy.y + enemy.size))
+            closest_x = max(
+                enemy.x, min(player_center[0], enemy.x + enemy.size)
+                )
+            closest_y = max(
+                enemy.y, min(player_center[1], enemy.y + enemy.size)
+                )
             dx = player_center[0] - closest_x
             dy = player_center[1] - closest_y
             distance = (dx**2 + dy**2)**0.5
-            return distance <= self.attack_range
+            return distance <= self.atk_range
         else:
             player_center = self.get_center()
             boss_center = enemy.get_center()
             dx = player_center[0] - boss_center[0]
             dy = player_center[1] - boss_center[1]
             distance = (dx**2 + dy**2)**0.5
-            return distance <= (self.attack_range + enemy.size)
+            return distance <= (self.atk_range + enemy.size)
         
-    def attack_area(self, dt, enemies):
+    def atk_area(self, dt, enemies):
         if self.alive:
-            self.attack_timer += dt
-            if self.attack_timer >= self.attack_cooldown:
-                self.is_attacking = True
+            self.atk_timer += dt
+            if self.atk_timer >= self.atk_cd:
+                self.is_atking = True
                 self.anim_timer = 0
-                self.attack_timer = 0
+                self.atk_timer = 0
                 for i in range(len(enemies)-1, -1, -1):
-                    if enemies[i].health > 0:
+                    if enemies[i].hp > 0:
                         if self.in_range(enemies[i]):
-                            enemies[i].health -= self.attack
+                            enemies[i].hp -= self.atk
                             enemies[i].update_hp_text()
-                    if enemies[i].health <= 0:
+                    if enemies[i].hp <= 0:
                         self.experience += enemies[i].experience
                         self.kills += 1
                         self.level_up()
                         enemies.pop(i)
-            if self.is_attacking:
+            if self.is_atking:
                 self.anim_timer += dt
                 if self.anim_timer >= self.anim_duration:
-                    self.is_attacking = False
+                    self.is_atking = False
                     
     def gain_experience(self, amount):
         self.experience += amount
@@ -138,45 +153,54 @@ class Player():
             self.is_level_up = True
             self.level += 1
             self.experience = 0
-            self.experience_to_next_lvl = int(self.experience_to_next_lvl * EXP_REQ_MULT)
+            self.experience_to_next_lvl = int(
+                self.experience_to_next_lvl * EXP_REQ_MULT
+                )
             print(f"Level up! You are now level {self.level}.")
             # choices() returns a list with 1 string, so acces index 0
-            self.stat_string = random.choices(self.stats_to_level, weights=(0.2,0.2,0.3,0.3))[0]
+            self.stat_string = random.choices(
+                self.stats_to_level, weights=(0.2,0.2,0.3,0.3)
+                )[0]
             self.upgrade_stat(self.stat_string)
             self.update_hp_text()
             self.level_up_text_timer = 0
-            self.level_up_text = self.stats_font.render(f"Level up! level {self.level}, upgraded {self.stat_string}", True, WHITE)
+            self.level_up_text = self.stats_font.render(
+                f"Level up! level {self.level}, upgraded {self.stat_string}", 
+                True, WHITE
+                )
 
 
     def upgrade_stat(self, stat):
-        if stat == "attack":
-            self.attack += 5
-            self.stat_string = "attack"
+        if stat == "atk":
+            self.atk += 5
+            self.stat_string = "atk"
         elif stat == "speed":
             self.speed += 1
             self.stat_string = "speed"
-        elif stat == "health":
-            self.max_health += 20
-            self.stat_string = "health"
-        elif stat == "attack cooldown":
-            self.attack_cooldown *= 0.75
-            self.stat_string = "attack cooldown"
-        self.health = self.max_health
+        elif stat == "hp":
+            self.max_hp += 20
+            self.stat_string = "hp"
+        elif stat == "atk cd":
+            self.atk_cd *= 0.75
+            self.stat_string = "atk cd"
+        self.hp = self.max_hp
         print(f"Upgraded {stat}!")
-        self.stats_to_level = ["attack", "speed", "health", "attack cooldown"]
+        self.stats_to_level = ["atk", "speed", "hp", "atk cd"]
     
     def update_hp_text(self):
-        self.hp_text = self.hp_font.render(f'{self.health}', True, BLACK)
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         
-    def draw_stats_text(self, screen):
+    def draw_stats_text(self, scrn):
         stats_text = []
         stats_text.append(f"level             : {self.level}")
-        stats_text.append(f"attack           : {self.attack}")
+        stats_text.append(f"attack           : {self.atk}")
         stats_text.append(f"speed           : {self.speed}")
-        stats_text.append(f"max health  : {self.max_health}")
-        stats_text.append(f"cooldown     : {self.attack_cooldown:.2f}")
+        stats_text.append(f"max health  : {self.max_hp}")
+        stats_text.append(f"cooldown     : {self.atk_cd:.2f}")
         offset = 0
         for text in stats_text:
-            screen.blit(self.stats_font.render(text, True, WHITE), (10, 70 + offset))
+            scrn.blit(
+                self.stats_font.render(text, True, WHITE), (10, 70 + offset)
+                )
             offset += 20
 
