@@ -4,6 +4,8 @@ Welcome to your peaceful yard. Well, it used to be peaceful... A terrible plague
 
 **You will protect your yard at all costs!**
 
+![Plague Yard Gameplay](screenshot.gif)
+
 
 
 ## 🎮 Features
