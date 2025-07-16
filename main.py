@@ -27,18 +27,7 @@ def main():
     
     while running:
         dt = clock.tick(60) / 1000
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
-            if event.type == pg.KEYDOWN and game_state == 0:
-                if event.key == pg.K_SPACE:
-                    game_state = 1
-                    player = Player(SCREEN_WIDTH//2,SCREEN_HEIGHT//2)
-                    spawner = EnemySpawner(player)
-                    enemies = []
-                    start_time = pg.time.get_ticks()  # Reset timer on restart
-                    game_over_recorded = False  # Reset flag on restart
-                
+    
         fps_text = font.render(f"FPS: {clock.get_fps():.1f}", True, WHITE)
         enemy_counter_text = font.render(
             f'enemies : {len(enemies)}', True, WHITE
@@ -54,8 +43,19 @@ def main():
         restart_text = font_l.render("Press SPACE to restart", True, WHITE)
         restart_rect = restart_text.get_rect()
         restart_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
-
- 
+        
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+            if event.type == pg.KEYDOWN and game_state == 0:
+                if event.key == pg.K_SPACE:
+                    game_state = 1
+                    player = Player(SCREEN_WIDTH//2,SCREEN_HEIGHT//2)
+                    spawner = EnemySpawner(player)
+                    enemies = []
+                    start_time = pg.time.get_ticks()  # Reset timer on restart
+                    game_over_recorded = False  # Reset flag on restart
+                
         scrn.fill(BLACK)
 
         if not player.alive and not game_over_recorded:
@@ -77,20 +77,19 @@ def main():
                 enemy.draw(scrn)
                 
             if player.is_level_up:
-                if player.level_up_text_timer <= player.level_up_text_duration:
-                    player.level_up_txt_rect = player.level_up_text.get_rect()
+                if player.level_up_txt_timer <= player.level_up_txt_duration:
+                    player.level_up_txt_rect = player.level_up_txt.get_rect()
                     player.level_up_txt_rect.center = (
                         player.get_center()[0], player.get_center()[1] - 30
                         )
-                    scrn.blit(player.level_up_text,(player.level_up_txt_rect))
-                    player.level_up_text_timer += dt
+                    scrn.blit(player.level_up_txt,(player.level_up_txt_rect))
+                    player.level_up_txt_timer += dt
                 else: player.is_level_up = False
             
-                
-            player.draw_stats_text(scrn)
             scrn.blit(fps_text, (10, 10))
             scrn.blit(enemy_counter_text, (10, 30))
             scrn.blit(player_lvl_text, (10, 50))
+            player.draw_stats_text(scrn)
         
         else: 
             minutes = int(survival_time // 60)
@@ -108,12 +107,11 @@ def main():
                 f'Final Defense: {damage_reduction:.1f}%',
                 f'Final Dodge: {dodge_chance:.1f}%'
             ]
-            
             scrn.blit(game_over_text, game_over_text_rect)
             scrn.blit(restart_text, restart_rect)
             
             offset = 30
-            stats_start_y = SCREEN_HEIGHT // 2 - (len(stats_lines)+1.5)*(offset) 
+            stats_start_y = SCREEN_HEIGHT // 2 - (len(stats_lines)+1.2)*(offset) 
             i = 0
             for stat_line in stats_lines: 
                 stat_text = font_m.render(stat_line, True, WHITE)

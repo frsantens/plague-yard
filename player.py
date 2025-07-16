@@ -33,13 +33,13 @@ class Player():
         self.stats_to_level = ["atk", "speed", "hp", "atk cd", "def"]  
         self.stat_string = "" #used later to temp store stat level up
         
-        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
-        self.level_up_text = self.stats_font.render(
+        self.hp_text = self.hp_font.render(f'{self.hp:.0f}', True, BLACK)
+        self.level_up_txt = self.stats_font.render(
             f"Level up! level {self.level}, upgraded {self.stat_string}", 
             True, WHITE
             )
-        self.level_up_text_duration = 2
-        self.level_up_text_timer = 0
+        self.level_up_txt_duration = 2
+        self.level_up_txt_timer = 0
         
         self.atk_timer = 0
         self.atk_range = ATTACK_RANGE
@@ -53,16 +53,16 @@ class Player():
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
     def draw(self, scrn):
-        self.atk_aoe_surface.fill((*BLACK ,0)) #clear aoe circle surface
+        self.atk_aoe_surface.fill((*BLACK, 0)) #clear aoe circle surface
         pg.draw.circle(
             self.atk_aoe_surface, self.color_alpha, 
             self.atk_aoe_surface_center, self.atk_range
             )
+        pg.draw.rect(scrn, self.color, (self.x, self.y, self.size, self.size))
         if self.is_atking:
             pg.draw.circle(scrn, GREEN, self.get_center(), self.atk_range)
-        pg.draw.rect(scrn, self.color, (self.x, self.y, self.size, self.size))
     
-        # to position the surface so its center aligns with player
+        # to position the aoe circle so its centered on player
         center = self.get_center()
         x = center[0]
         y = center[1]
@@ -70,7 +70,7 @@ class Player():
             self.atk_aoe_surface, 
             (x - self.atk_range - 5, y - self.atk_range - 5)
             )
-        scrn.blit(int(self.hp_text), (self.x, self.y))
+        scrn.blit(self.hp_text, (self.x, self.y))
         
     def get_center(self):
         return (self.x + self.size//2, self.y + self.size//2)
@@ -145,7 +145,7 @@ class Player():
     def gain_experience(self, amount):
         self.experience += amount
         if self.experience >= self.exp_next_lvl:
-            self.level_up(self.level_up_text_duration)
+            self.level_up(self.level_up_txt_duration)
 
     def level_up(self):
         if self.experience >= self.experience_to_next_lvl:
@@ -162,8 +162,8 @@ class Player():
                 )[0]
             self.upgrade_stat(self.stat_string)
             self.update_hp_text()
-            self.level_up_text_timer = 0
-            self.level_up_text = self.stats_font.render(
+            self.level_up_txt_timer = 0
+            self.level_up_txt = self.stats_font.render(
                 f"Level up! level {self.level}, upgraded {self.stat_string}", 
                 True, WHITE
                 )

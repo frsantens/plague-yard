@@ -16,13 +16,13 @@ class EnemySpawner:
         sw = SCREEN_WIDTH
         sh = SCREEN_HEIGHT
         if edge == 0:  # left
-            return pg.Vector2(-30, random.uniform(0, sh))
+            return pg.Vector2(-100, random.uniform(0, sh))
         elif edge == 1:  # right
-            return pg.Vector2(sw + 30, random.uniform(0, sh))
+            return pg.Vector2(sw + 100, random.uniform(0, sh))
         elif edge == 2:  # top
-            return pg.Vector2(random.uniform(0, sw), -30)
+            return pg.Vector2(random.uniform(0, sw), -100)
         else:  # bottom
-            return pg.Vector2(random.uniform(0, sw), sh + 30)
+            return pg.Vector2(random.uniform(0, sw), sh + 100)
 
     def spawn(self, position, enemy_type, speed):
         if enemy_type == "SlowStrong":
@@ -41,9 +41,9 @@ class EnemySpawner:
         self.spawn_timer += dt
         if self.spawn_timer >= 1.0 / self.spawn_rate:
             position = self.get_random_spawn_position()
-            speed = random.uniform(1, 4)
             enemy_type = random.choices(
                 self.enemy_types, weights=[10,20,40,1]
                 )[0]
+            speed = random.uniform(1, 4)
             enemies.append(self.spawn(position, enemy_type, speed))
             self.spawn_timer = 0.0
