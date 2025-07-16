@@ -28,7 +28,6 @@ def main():
     while running:
         dt = clock.tick(60) / 1000
     
-        fps_text = font.render(f"FPS: {clock.get_fps():.1f}", True, WHITE)
         enemy_counter_text = font.render(
             f'enemies : {len(enemies)}', True, WHITE
             )
@@ -86,9 +85,8 @@ def main():
                     player.level_up_txt_timer += dt
                 else: player.is_level_up = False
             
-            scrn.blit(fps_text, (10, 10))
-            scrn.blit(enemy_counter_text, (10, 30))
-            scrn.blit(player_lvl_text, (10, 50))
+            scrn.blit(enemy_counter_text, (10, 10))
+            scrn.blit(player_lvl_text, (10, 30))
             player.draw_stats_text(scrn)
         
         else: 

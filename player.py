@@ -201,7 +201,7 @@ class Player():
         offset = 0
         for text in stats_text:
             scrn.blit(
-                self.stats_font.render(text, True, WHITE), (10, 70 + offset)
+                self.stats_font.render(text, True, WHITE), (10, 50 + offset)
                 )
             offset += 20
 
