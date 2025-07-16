@@ -68,8 +68,8 @@ def main():
             player.move()
             for enemy in enemies:
                 enemy.move_towards_player(player)
-                enemy.attack_player(dt, player)
-            player.attack_area(dt, enemies)
+                enemy.atk_player(dt, player)
+            player.atk_area(dt, enemies)
             spawner.update(dt,enemies)
 
             player.draw(scrn)
@@ -99,10 +99,10 @@ def main():
                 f"Time Survived: {minutes}:{seconds:02d}",
                 f"Enemies Killed: {player.kills}",
                 f"Level Reached: {player.level}",
-                f"Final Attack: {player.attack}",
+                f"Final Attack: {player.atk}",
                 f"Final Speed: {player.speed}",
-                f"Final Health: {player.max_health}",
-                f"Final Cooldown: {player.attack_cd:.2f}s"
+                f"Final Health: {player.max_hp}",
+                f"Final Cooldown: {player.atk_cd:.2f}s"
             ]
             
             scrn.blit(game_over_text, game_over_text_rect)
@@ -120,7 +120,7 @@ def main():
             
             
         pg.display.flip()
-        clock.tick(144)  # limits FPS to 60
+        clock.tick(60)  # limits FPS to 60
 
     pg.quit()
 if __name__ == "__main__":
