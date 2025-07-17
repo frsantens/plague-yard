@@ -30,9 +30,11 @@ Gameplay from old version, more polish in current version!
 
 ## 🚀 Installation
 
+### 🐧 Linux
+
 1. **Install Python** (if not already installed):
    ```bash
-   sudo apt-get install python3
+   sudo apt-get install python3 python3-pip
    ```
 
 2. **Install pygame**:
@@ -49,6 +51,53 @@ Gameplay from old version, more polish in current version!
    ```bash
    cd plague-yard
    python3 main.py
+   ```
+
+### 🍎 macOS
+
+1. **Install Python** (if not already installed):
+   - Download and install Python from [python.org](https://www.python.org/downloads/)
+   - Or use Homebrew:
+   ```bash
+   brew install python
+   ```
+
+2. **Install pygame**:
+   ```bash
+   pip install pygame
+   ```
+
+3. **Clone the repository**:
+   ```bash
+   git clone https://github.com/frsantens/plague-yard
+   ```
+
+4. **Run the game**:
+   ```bash
+   cd plague-yard
+   python3 main.py
+   ```
+
+### 🪟 Windows
+
+1. **Install Python** (if not already installed):
+   - Download and install Python from [python.org](https://www.python.org/downloads/)
+   - Make sure to check "Add Python to PATH" during installation
+
+2. **Install pygame**:
+   ```cmd
+   pip install pygame
+   ```
+
+3. **Clone the repository**:
+   ```cmd
+   git clone https://github.com/frsantens/plague-yard
+   ```
+
+4. **Run the game**:
+   ```cmd
+   cd plague-yard
+   python main.py
    ```
 
 ## ⚙️ Configuration
