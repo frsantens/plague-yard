@@ -1,6 +1,6 @@
 [project]
 name = "plague-yard"
-version = "1.02"
+version = "1.5"
 description = "top down roguelike survivor game"
 readme = "README.md"
 requires-python = ">=3.12"
