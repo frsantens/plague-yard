@@ -1,11 +1,12 @@
 import pygame as pg
 
 SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+SCREEN_HEIGHT = 900
 
 # colour palette
 BLACK = (0, 21, 36)
 WHITE = (244, 244, 248)
+GREY = (122, 122, 122)
 ORANGE = (245, 143, 41)
 BOSS_ORANGE = (245, 102, 41)
 RED = (240, 67, 41)
@@ -24,9 +25,9 @@ SIZE = 35
 PLAYER_COLOR = BLUE
 HEALTH = 125
 SPEED = 8
-ATTACK = 20
+ATTACK = 20            # shock attack = attack / 2
 ATTACK_COOLDOWN = 1
-ATTACK_RANGE = 125
+ATTACK_RANGE = 125     # shock range = 1.5 * range
 
 # level up
 EXP_REQ = 15

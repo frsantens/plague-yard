@@ -8,7 +8,7 @@ class EnemySpawner:
         self.spawn_timer = 0.0
         self.player = player
         self.last_player_level = player.level
-        self.spawn_rate = 2.0 + (self.player.level * 0.2) 
+        self.spawn_rate = SPAWN_RATE + (self.player.level * SPAWN_RATE_MULT) 
         self.enemy_types = ["SlowStrong", "FastWeak", "Standard", "Boss"] 
 
     def get_random_spawn_position(self):

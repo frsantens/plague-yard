@@ -4,6 +4,7 @@ Welcome to your peaceful yard. Well, it used to be peaceful... A terrible plague
 
 **You will protect your yard at all costs!**
 
+Gameplay from old version, more polish in current version!
 ![Plague Yard Gameplay](screenshot.gif)
 
 
@@ -14,6 +15,7 @@ Welcome to your peaceful yard. Well, it used to be peaceful... A terrible plague
 - **Multiple Enemy Types** - Some move slow and hit hard, others pester you like (dangerous!) mosquitos
 - **Progressive Difficulty** - Challenge scales dynamically with your player level
 - **Character Progression** - Level up to increase your stats and survivability
+- **Shock attack** - Attack enemies with a chaining electric shock
 - **Survival Timer** - Compete against your previous best runs
 - **Retro Art** - Classic arcade-style visuals
 
@@ -23,6 +25,8 @@ Welcome to your peaceful yard. Well, it used to be peaceful... A terrible plague
 |-----|--------|
 | **Arrow Keys** / **WASD** / **ZQSD** | Move your character |
 | **Spacebar** | Restart game when game over |
+| **F** | Pause or unpause game |
+
 
 ## 🚀 Installation
 
