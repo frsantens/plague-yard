@@ -36,7 +36,7 @@ class Enemy():
         
         self.is_dying = False
         self.death_timer = 0
-        self.death_duration = 0.2
+        self.death_duration = 0.1
         self.original_color = self.color
 
     def draw(self, scrn):

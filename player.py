@@ -3,7 +3,15 @@ import random
 from constants import *
 
 class Player():
-    def __init__(self,x,y):
+    # Class variables - same for all players
+    size = SIZE
+    stats_to_level = ["atk", "speed", "hp", "atk cd", "def", "dodge", "shock cd"]
+    level_up_txt_duration = 1.5
+    anim_duration = 0.1
+    shock_duration = 0.2
+    shock_cd = SHOCK_COOLDOWN
+    
+    def __init__(self, x, y):
         # basic properties
         self.x = x
         self.y = y
@@ -15,7 +23,6 @@ class Player():
         self.osd_font = pg.font.SysFont('courier', 18)
         self.alive = True
         self.is_level_up = False
-        self.size = SIZE 
         
         # initial stats
         self.kills = 0
@@ -34,32 +41,27 @@ class Player():
         self.atk_cd = ATTACK_COOLDOWN
         self.atk_timer = 0
         self.atk_range = ATTACK_RANGE
-        self.shock_range = ATTACK_RANGE * 1.5
+        self.shock_range = SHOCK_RANGE
         self.is_atking = False
         self.anim_timer = 0
-        self.anim_duration = 0.1
         self.atk_aoe_surface = pg.Surface(
             (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
             )
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
         
-        self.shock_cd = 0.4
         self.shock_timer = 0
         self.is_shocking = False
-        self.shock_lines = []  # lines to draw shock effect
-        self.shock_duration = 0.2
+        self.shock_lines = []
         self.shock_effect_timer = 0
         self.shock_surface = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pg.SRCALPHA)
         
-        self.stats_to_level = ["atk", "speed", "hp", "atk cd", "def"]  
-        self.stat_string = "" #used later to temp store stat level up
+        self.stat_string = ""
         
         self.hp_text = self.hp_font.render(f'{self.hp:.0f}', True, WHITE)
         self.level_up_txt = self.lvl_up_font.render(
             f"Level up! level {self.level}, upgraded {self.stat_string}", 
             True, WHITE
             )
-        self.level_up_txt_duration = 1.5
         self.level_up_txt_timer = 0
         
     def draw(self, scrn):
@@ -310,8 +312,9 @@ class Player():
             )
         print(f"Level up! You are now level {self.level}.")
         # choices() returns a list with 1 string
+        # ["atk", "speed", "hp", "atk cd", "def", "dodge", "shock cd"]
         self.stat_string = random.choices(
-            self.stats_to_level, weights=[3, 2, 4, 2, 8]
+            self.stats_to_level, weights=[3, 2, 3, 2, 8, 9, 8]
             )[0]
         self.upgrade_stat(self.stat_string)
         self.update_hp_text()
@@ -337,6 +340,10 @@ class Player():
         elif stat == "def":
             self.defense += 0.1
             self.stat_string = "def"
+        elif stat == "dodge":
+            self.dodge += 5
+        elif stat == "shock cd":
+            self.shock_cd *= 0.9
         self.hp = self.max_hp
         print(f"Upgraded {stat}!")
     
@@ -349,13 +356,11 @@ class Player():
         stats_text = []
         stats_text.append(f"level   : {self.level}")
         stats_text.append(f"attack  : {self.atk}")
-        stats_text.append(f"speed   : {self.speed}")
         stats_text.append(f"hp      : {int(self.hp)}/{self.max_hp}")
-        stats_text.append(f"cooldown : {self.atk_cd:.2f}")
         stats_text.append(f"defense  : {damage_reduction:.1f}%")
         stats_text.append(f"dodge    : {dodge_chance:.1f}%")
         
-        column_split = 4
+        column_split = 3
         for i, text in enumerate(stats_text):
             if i < column_split:
                 x_pos = 10
