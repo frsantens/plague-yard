@@ -7,7 +7,7 @@ class Enemy():
     def __init__(self, x, y, enemy_type, speed):
         self.x = x
         self.y = y
-        self.size = SIZE_STANDARD
+        # self.size = SIZE_STANDARD
         self.center = (self.x + self.size//2, self.y + self.size//2)
         self.enemy_type = enemy_type
         self.hp_font = pg.font.Font(None, 20)
@@ -16,12 +16,12 @@ class Enemy():
         self.color_alpha = (*self.color, 8)
         
         self.speed = speed
-        self.hp_max = HEALTH_STANDARD
+        # self.hp_max = HEALTH_STANDARD
         self.hp = self.hp_max
-        self.experience = EXP_STANDARD
-        self.atk = ATTACK_STANDARD
-        self.atk_cd = COOLDOWN_STANDARD
-        self.atk_range = RANGE_STANDARD
+        # self.experience = EXP_STANDARD
+        # self.atk = ATTACK_STANDARD
+        # self.atk_cd = COOLDOWN_STANDARD
+        # self.atk_range = RANGE_STANDARD
         self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
         # to draw a transp circle I need a new transparent surface
         self.atk_aoe_surface = pg.Surface(
@@ -69,7 +69,7 @@ class Enemy():
                 alpha_intensity = int(8 + (12 * fade_factor))  # 8 to 20
                 self.color_alpha = (*self.color, alpha_intensity)
             else:
-                # full HP - use original color
+                # full hp - use original color
                 self.color = self.original_color
                 self.color_alpha = (*self.color, 8)
             
@@ -180,74 +180,86 @@ class Enemy():
         return distance <= self.atk_range
 
 class StandardEnemy(Enemy):
+    spawn_weight = 40
+    size = SIZE_STANDARD
+    hp_max = HEALTH_STANDARD
+    experience = EXP_STANDARD
+    atk = ATTACK_STANDARD
+    atk_range = RANGE_STANDARD
+    atk_cd = COOLDOWN_STANDARD
+    
     def __init__(self, x, y, speed):
-        super().__init__(x,y,"Standard", speed)
-        self.hp_max = HEALTH_STANDARD
+        super().__init__(x, y, "Standard", speed)
+        self.speed = speed
         self.hp = self.hp_max
         self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
-        # need to create surface per class
         self.atk_aoe_surface = pg.Surface(
             (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
-            )
+        )
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
-        
+
 class SlowStrongEnemy(Enemy):
+    spawn_weight = 10
+    size = SIZE_SLOW_AND_STRONG
+    speed_modifier = SPD_MOD_SLOW_AND_STRONG
+    hp_max = HEALTH_SLOW_AND_STRONG
+    experience = EXP_SLOW_AND_STRONG
+    atk = ATTACK_SLOW_AND_STRONG
+    atk_cd = COOLDOWN_SLOW_AND_STRONG
+    atk_range = RANGE_SLOW_AND_STRONG
+    
     def __init__(self, x, y, speed):
-        super().__init__(x,y,"SlowStrong",speed)
-        self.size = SIZE_SLOW_AND_STRONG
-        self.speed = speed * SPD_MOD_SLOW_AND_STRONG
-        self.hp_max = HEALTH_SLOW_AND_STRONG
+        super().__init__(x, y, "SlowStrong", speed)
+        self.speed = speed * self.speed_modifier
         self.hp = self.hp_max
-        self.experience = EXP_SLOW_AND_STRONG
-        self.atk = ATTACK_SLOW_AND_STRONG
-        self.atk_cd = COOLDOWN_SLOW_AND_STRONG
-        self.atk_range = RANGE_SLOW_AND_STRONG
         self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
-        # need to create surface per class
         self.atk_aoe_surface = pg.Surface(
             (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
-            )
+        )
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
-        
+
 class FastWeakEnemy(Enemy):
+    spawn_weight = 20
+    size = SIZE_FAST_AND_WEAK
+    speed_modifier = SPD_MOD_FAST_AND_WEAK
+    hp_max = HEALTH_FAST_AND_WEAK
+    experience = EXP_FAST_AND_WEAK
+    atk = ATTACK_FAST_AND_WEAK
+    atk_range = RANGE_FAST_AND_WEAK
+    atk_cd = COOLDOWN_FAST_AND_WEAK
+    
     def __init__(self, x, y, speed):
         super().__init__(x, y, "FastWeak", speed)
-        self.size = SIZE_FAST_AND_WEAK
-        self.speed = speed * SPD_MOD_FAST_AND_WEAK
-        self.hp_max = HEALTH_FAST_AND_WEAK
+        self.speed = speed * self.speed_modifier
         self.hp = self.hp_max
-        self.experience = EXP_FAST_AND_WEAK
-        self.atk = ATTACK_FAST_AND_WEAK
-        self.atk_range = RANGE_FAST_AND_WEAK
-        self.atk_cd = COOLDOWN_FAST_AND_WEAK
         self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
-        # need to create surface per class
         self.atk_aoe_surface = pg.Surface(
             (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
-            )
+        )
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
-        
-        
+
 class BossEnemy(Enemy):
+    spawn_weight = 1
+    size = SIZE_BOSS
+    speed_modifier = SPD_MOD_BOSS
+    hp_max = HEALTH_BOSS
+    experience = EXP_BOSS
+    atk = ATTACK_BOSS
+    atk_range = ATTACK_RANGE_BOSS
+    atk_cd = COOLDOWN_BOSS
+    color = BOSS_ORANGE
+    
     def __init__(self, x, y, speed):
         super().__init__(x, y, "Boss", speed)
-        self.hp_max = HEALTH_BOSS
-        self.speed = speed * SPD_MOD_BOSS
+        self.speed = speed * self.speed_modifier
         self.hp = self.hp_max
-        self.size =  SIZE_BOSS
-        self.experience = EXP_BOSS
-        self.atk = ATTACK_BOSS
-        self.atk_range = ATTACK_RANGE_BOSS
-        self.atk_cd = COOLDOWN_BOSS
         self.hp_font = pg.font.Font(None, 30)
         self.hp_text = self.hp_font.render(f'{self.hp}', True, WHITE)
-        self.color = BOSS_ORANGE
-        # need to create surface per class
         self.atk_aoe_surface = pg.Surface(
             (self.atk_range * 2 + 10, self.atk_range * 2 + 10), pg.SRCALPHA
-            )
+        )
         self.atk_aoe_surface_center = (self.atk_range + 5, self.atk_range + 5)
-        
+    
     def update_hp_text(self):
         self.hp_text = self.hp_font.render(f'{self.hp}', True, WHITE)
 

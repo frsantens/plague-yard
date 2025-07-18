@@ -11,6 +11,7 @@ class Player():
         self.color_alpha = (*self.color, 10)
         self.hp_font = pg.font.Font(None, 20)
         self.stats_font = pg.font.Font(None, 20)
+        self.lvl_up_font = pg.font.Font(None, 35)
         self.osd_font = pg.font.SysFont('courier', 18)
         self.alive = True
         self.is_level_up = False
@@ -53,8 +54,8 @@ class Player():
         self.stats_to_level = ["atk", "speed", "hp", "atk cd", "def"]  
         self.stat_string = "" #used later to temp store stat level up
         
-        self.hp_text = self.hp_font.render(f'{self.hp:.0f}', True, BLACK)
-        self.level_up_txt = self.stats_font.render(
+        self.hp_text = self.hp_font.render(f'{self.hp:.0f}', True, WHITE)
+        self.level_up_txt = self.lvl_up_font.render(
             f"Level up! level {self.level}, upgraded {self.stat_string}", 
             True, WHITE
             )
@@ -133,7 +134,6 @@ class Player():
         scrn.blit(self.shock_surface, (0, 0))
     
     def _draw_hp_text(self, scrn, center):
-        """Draw the HP text centered on the player"""
         hp_text_rect = self.hp_text.get_rect()
         hp_text_rect.center = center
         scrn.blit(self.hp_text, hp_text_rect)
@@ -316,7 +316,7 @@ class Player():
         self.upgrade_stat(self.stat_string)
         self.update_hp_text()
         self.level_up_txt_timer = 0
-        self.level_up_txt = self.stats_font.render(
+        self.level_up_txt = self.lvl_up_font.render(
             f"Level up! level {self.level}, upgraded {self.stat_string}", 
             True, WHITE
             )
@@ -341,7 +341,7 @@ class Player():
         print(f"Upgraded {stat}!")
     
     def update_hp_text(self):
-        self.hp_text = self.hp_font.render(f'{self.hp}', True, BLACK)
+        self.hp_text = self.hp_font.render(f'{self.hp}', True, WHITE)
         
     def draw_stats_text(self, scrn):
         damage_reduction = (1 - (1 / self.defense)) * 100
